@@ -1,5 +1,8 @@
-from DataPoint import DataPoint
 from argparse import ArgumentParser
+from math import exp
+
+from DataPoint import DataPoint
+from NeuralNet import NeuralNet
 
 
 def read_data(file_name):
@@ -28,6 +31,10 @@ def classify(data):
     pass
 
 
+def threshold_curve(x):
+    return 1 / (1 + exp(-x))
+
+
 def main():
     parser = ArgumentParser(description='''
     An Artificial Neural Network
@@ -39,7 +46,12 @@ def main():
     args = parser.parse_args()
 
     points = read_data(args.filename)
+
+    net = NeuralNet(2, 5, 1)
+    net.learn()
+
     for point in points:
+        point.classification = round(threshold_curve(net.classify(point.inputs)[0]))
         print(point)
 
 

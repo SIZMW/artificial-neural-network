@@ -1,9 +1,4 @@
 import operator
-from math import exp
-
-
-def activation_curve(x):
-    return 1 / (1 + exp(x))
 
 
 class Neuron:
@@ -12,11 +7,11 @@ class Neuron:
         :param num_inputs: int
         :return: Neuron
         """
-        self.weights = [0] * num_inputs
+        self.weights = [0] * (num_inputs + 1)
 
     def activate(self, inputs):
         """
         :param inputs: list(float)
         :return: int
         """
-        return round(activation_curve(sum(map(operator.mul, self.weights, inputs))))
+        return sum(map(operator.mul, self.weights, [1] + inputs))
