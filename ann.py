@@ -42,15 +42,30 @@ def main():
     for WPI CS 4341
     ''')
     parser.add_argument('filename')
+    parser.add_argument('nodesorholdback', nargs='?', default='h')
+    parser.add_argument('value', nargs='?', type=float)
 
     args = parser.parse_args()
 
     points = read_data(args.filename)
 
+    holdback = 0.2
+    nodecount = 5
+    trainlen = 0
+
+    if (args.nodesorholdback == 'p'):
+        holdback = args.value
+        if (holdback < 0.0 or holdback > 1.0):
+            # Invalid percentage
+            raise NameError('Hold back percentage is invalid.')
+
+    trainlen = int(len(points) * (1.0 - holdback))
+
     net = NeuralNet(2, 5, 1)
     net.learn()
 
-    for point in points:
+    for i in range(0, trainlen):
+        point = points[i]
         point.classification = round(threshold_curve(net.classify(point.inputs)[0]))
         print(point)
 
