@@ -2,11 +2,12 @@ from Neuron import Neuron
 
 
 class NeuralNet:
-    def __init__(self, input_layer_size, hidden_layer_size, output_layer_size):
-        self.input_layer = [Neuron(input_layer_size) for i in range(input_layer_size)]
-        self.hidden_layer = [Neuron(input_layer_size) for i in range(hidden_layer_size)]
-        self.output_layer = [Neuron(hidden_layer_size) for i in range(output_layer_size)]
-        self.layers = (self.input_layer, self.hidden_layer, self.output_layer)
+    def __init__(self, *layer_sizes):
+        prev_size = layer_sizes[0]
+        self.layers = []
+        for size in layer_sizes:
+            self.layers.append([Neuron(prev_size) for i in range(size)])
+            prev_size = size
 
     def classify(self, inputs):
         inputs = list(inputs)
