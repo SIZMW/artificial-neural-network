@@ -1,13 +1,12 @@
 class DataPoint:
-    def __init__(self, input_a, input_b, output):
+    def __init__(self, inputs, outputs):
         """
-        :param input_a: float
-        :param input_b: float
-        :param output: int
+        :param inputs: list(float)
+        :param outputs: list(int)
         :return: None
         """
-        self.inputs = (input_a, input_b)
-        self.output = output
+        self.inputs = inputs
+        self.outputs = outputs
         self.classification = None
 
     def __str__(self):

@@ -1,17 +1,41 @@
 import operator
 
+_id = 0
+
 
 class Neuron:
-    def __init__(self, num_inputs):
+    def __init__(self):
         """
-        :param num_inputs: int
         :return: Neuron
         """
-        self.weights = [0] * (num_inputs + 1)
+        self.const_weight = 0
+        self.weights = {}
+        self.input = None
+        self.output = None
+        global _id
+        self._id = _id
+        _id += 1
 
-    def activate(self, inputs):
+    def connect(self, input_neuron):
+        self.weights[input_neuron] = 0
+
+    def activate(self, activation_function, inputs):
         """
         :param inputs: list(float)
         :return: int
         """
-        return sum(map(operator.mul, self.weights, [1] + inputs))
+        self.input = self.const_weight + sum(map(operator.mul, self.weights.values(), inputs))
+        self.output = activation_function(self.input)
+        return self.output
+
+    def __hash__(self):
+        return _id
+
+    def __eq__(self, other):
+        return self._id == other._id
+
+    def __str__(self):
+        return "Neuron" + str(self._id)
+
+    def __repr__(self):
+        return "Neuron" + str(self._id)

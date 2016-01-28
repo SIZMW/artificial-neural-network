@@ -60,4 +60,5 @@ docs/_build/
 target/
 
 
+/temp-plot.html
 .idea/
