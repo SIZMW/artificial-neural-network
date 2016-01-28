@@ -60,7 +60,7 @@ class NeuralNet:
                 total_error += math.sqrt(sum(errors[output_neuron] ** 2 for output_neuron in self.layers[-1]))
             total_error /= len(data)
             session_errors.append(total_error)
-            if total_error < epsilon:
+            if len(session_errors) > 1 and abs(session_errors[-1] - session_errors[-2]) < epsilon:
                 break
 
         plotly.offline.plot({

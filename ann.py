@@ -58,7 +58,7 @@ def main():
     train_len = int(len(points) * (1.0 - hold_back))
 
     net = NeuralNet(lambda x: 1 / (1 + exp(-x)), lambda x: exp(x) * (exp(x) + 1) ** -2, 2, node_count, 1)
-    net.learn(1e-2, 1e-1, 100, points[:train_len])
+    net.learn(1e-6, 1e-2, 100, points[:train_len])
 
     for i in range(train_len):
         point = points[i]
