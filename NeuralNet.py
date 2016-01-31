@@ -1,73 +1,46 @@
-import math
-from random import random
-
-import plotly
-from plotly.graph_objs import Scatter, Layout
-
-from Neuron import Neuron
+import numpy as np
 
 
 class NeuralNet:
-    def __init__(self, activation_function, activation_derivative, *layer_sizes):
-        self.activation_function = activation_function
-        self.activation_derivative = activation_derivative
-        self.layers = []
-        for size in layer_sizes:
-            prev_layer = None if len(self.layers) == 0 else self.layers[-1]
-            layer = []
-            if prev_layer is not None:
-                for i in range(size):
-                    neuron = Neuron()
-                    layer.append(neuron)
-                    for prev_neuron in prev_layer:
-                        neuron.connect(prev_neuron)
-            self.layers.append(layer)
+    def __init__(self, *layer_sizes):
+        self.weights = []
+        for i in range(len(layer_sizes) - 1):
+            self.weights.append(np.random.randn(layer_sizes[i], layer_sizes[i + 1]))
 
-    def classify(self, inputs):
-        inputs = list(inputs)
-        for layer in self.layers:
-            inputs = [neuron.activate(self.activation_function, inputs) for neuron in layer]
-        return list(map(self.activation_function, inputs))
+    @staticmethod
+    def activation_function(x):
+        return 1 / (1 + np.exp(-x))
 
-    def learn(self, alpha, epsilon, cutoff, data):
-        errors = {}
-        # for layer in self.layers:
-        #     for neuron in layer:
-        #         errors[neuron] = 0
-        session_errors = []
-        for training_session in range(cutoff):
-            for layer in self.layers:
-                for neuron in layer:
-                    for input_neuron in neuron.weights.keys():
-                        neuron.weights[input_neuron] = random() * 1e-2
-            total_error = 0
-            for example in data:
-                self.classify(example.inputs)
-                i = 0
-                for neuron in self.layers[-1]:
-                    errors[neuron] = self.activation_derivative(neuron.input) * (example.outputs[i] - neuron.output)
-                    i += 1
-                for i in reversed(range(0, len(self.layers) - 1)):
-                    layer = self.layers[i]
-                    for neuron in layer:
-                        errors[neuron] = self.activation_derivative(neuron.input) * \
-                                         sum(next_neuron.weights[neuron] * errors[next_neuron] for next_neuron in
-                                             self.layers[i + 1])
-                for layer in self.layers:
-                    for neuron in layer:
-                        for input_neuron in neuron.weights.keys():
-                            neuron.weights[input_neuron] += alpha * input_neuron.output * errors[neuron]
-                total_error += math.sqrt(sum(errors[output_neuron] ** 2 for output_neuron in self.layers[-1]))
-            total_error /= len(data)
-            session_errors.append(total_error)
-            if len(session_errors) > 1 and abs(session_errors[-1] - session_errors[-2]) < epsilon:
+    @staticmethod
+    def activation_derivative(x):
+        return np.exp(x) * (np.exp(x) + 1) ** -2
+
+    def calculate(self, input):
+        inputs = []
+        outputs = [input]
+        for i in range(len(self.weights)):
+            inputs.append(np.dot(outputs[-1], self.weights[i]))
+            outputs.append(self.activation_function(inputs[-1]))
+        return inputs, outputs
+
+    def get_weight_gradients(self, input):
+        inputs, outputs = self.calculate(input)
+
+        gradients = [np.zeros(len(inputs))] * len(self.weights)
+
+        delta = np.multiply(-(input - outputs[-1]), self.activation_derivative(inputs[-1]))
+
+        for i in reversed(len(gradients)):
+            gradients[i] = np.dot(outputs[i - 1], delta)
+            delta = np.dot(delta, self.weights[i].T) * self.activation_derivative(inputs[i])
+
+        return gradients
+
+    def learn(self, min_rate, input):
+        while True:
+            gradients = self.get_weight_gradients(input)
+            rate = np.linalg.norm(gradients[-1]) / 2.0
+            if rate < min_rate:
                 break
-
-        plotly.offline.plot({
-            "data": [
-                Scatter(x=list(range(len(session_errors))), y=session_errors)
-            ],
-            "layout": Layout(
-                    title="da biznis"
-            )
-        })
+            for i in range(len(self.weights)):
+                self.weights[i] -= rate * gradients[i]
