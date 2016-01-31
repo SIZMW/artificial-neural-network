@@ -1,34 +1,27 @@
 from argparse import ArgumentParser
-from math import exp
 
-from DataPoint import DataPoint
-from NeuralNet import NeuralNet
+import numpy as np
 
 
 def read_data(file_name):
     """
+    :description: Reads the file and returns the matrix of input values and column vector of expected outputs.
     :param file_name: str
-    :return: list(DataPoint)
+    :return: matrix[input, input], matrix[output]
     """
     with open(file_name, 'r') as datafile:
         data = datafile.readlines()
 
     datafile.close()
     points = []
+    outputs = []
 
     for line in data:
         values = line.strip().split(' ')
-        points.append(DataPoint([float(values[0]), float(values[1])], [int(float(values[2]))]))
+        points.append([float(values[0]), float(values[1])])
+        outputs.append(float(values[2]))
 
-    return points
-
-
-def classify(data):
-    """
-    :param data: list(DataPoint)
-    :return: list((DataPoint))
-    """
-    pass
+    return np.asmatrix(points, float), np.asmatrix(outputs, float)
 
 
 def main():
@@ -43,7 +36,7 @@ def main():
 
     args = parser.parse_args()
 
-    points = read_data(args.filename)
+    points, expec_output = read_data(args.filename)
 
     hold_back = 0.2
     node_count = 5
@@ -57,13 +50,7 @@ def main():
 
     train_len = int(len(points) * (1.0 - hold_back))
 
-    net = NeuralNet(lambda x: 1 / (1 + exp(-x)), lambda x: exp(x) * (exp(x) + 1) ** -2, 2, node_count, 1)
-    net.learn(1e-6, 1e-2, 100, points[:train_len])
-
-    for i in range(train_len):
-        point = points[i]
-        point.classification = list(map(round, net.classify(point.inputs)))
-        print(point)
+    # Do the neural net here
 
 
 if __name__ == '__main__':
