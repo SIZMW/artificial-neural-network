@@ -2,6 +2,8 @@ from argparse import ArgumentParser
 
 import numpy as np
 
+from NeuralNet import NeuralNet
+
 
 def read_data(file_name):
     """
@@ -19,9 +21,9 @@ def read_data(file_name):
     for line in data:
         values = line.strip().split(' ')
         points.append([float(values[0]), float(values[1])])
-        outputs.append(float(values[2]))
+        outputs.append([float(values[2])])
 
-    return np.asmatrix(points, float), np.asmatrix(outputs, float)
+    return points, outputs
 
 
 def main():
@@ -35,7 +37,6 @@ def main():
     parser.add_argument('value', nargs='?', type=float)
 
     args = parser.parse_args()
-
     points, expec_output = read_data(args.filename)
 
     hold_back = 0.2
@@ -50,7 +51,30 @@ def main():
 
     train_len = int(len(points) * (1.0 - hold_back))
 
-    # Do the neural net here
+    # Data arrays
+    train_data = []
+    train_out_data = []
+    valid_data = []
+    valid_out_data = []
+
+    # Set up training data arrays
+    for i in range(0, train_len):
+        train_data.append(points[i])
+        train_out_data.append((expec_output[i]))
+
+    # Set up validation data arrays
+    for i in range(train_len + 1, len(points)):
+        valid_data.append(points[i])
+        valid_out_data.append(expec_output[i])
+
+    net = NeuralNet(2, node_count, 1)
+
+    net.learn(1e-3, np.asmatrix(train_data, float), np.asmatrix(train_out_data, float))
+    actual_output = net.calculate(valid_data)
+    error_matrix = np.subtract(actual_output, np.asmatrix(valid_out_data))
+    corr_percent = 1 - sum(abs(x) for x in np.nditer(error_matrix)) / len(valid_out_data)
+
+    print(corr_percent)
 
 
 if __name__ == '__main__':
