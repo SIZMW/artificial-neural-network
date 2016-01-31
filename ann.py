@@ -74,10 +74,10 @@ def main():
     net.learn(1e-3, train_data, train_out_data)
 
     for example in valid_data:
-        actual_output.append(net.calculate(example)[1])
+        actual_output.append(net.calculate(example)[1][-1])
 
     for i in range(len(actual_output)):
-        errors.append(expec_output[i] - actual_output[i])
+        errors.append(expec_output[i][0] - actual_output[i][0])
 
     corr_percent = 1 - sum(abs(x) for x in errors) / len(valid_out_data)
 
