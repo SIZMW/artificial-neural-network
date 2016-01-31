@@ -60,18 +60,18 @@ def main():
     # Set up training data arrays
     for i in range(0, train_len):
         train_data.append(points[i])
-        train_out_data.append((expec_output[i]))
+        train_out_data.append(expec_output[i])
 
     # Set up validation data arrays
-    for i in range(train_len + 1, len(points)):
+    for i in range(train_len, len(points)):
         valid_data.append(points[i])
         valid_out_data.append(expec_output[i])
 
     net = NeuralNet(2, node_count, 1)
 
     net.learn(1e-3, np.asmatrix(train_data, float), np.asmatrix(train_out_data, float))
-    actual_output = net.calculate(valid_data)
-    error_matrix = np.subtract(actual_output, np.asmatrix(valid_out_data))
+    actual_output = net.calculate(valid_data)[1][-1]
+    error_matrix = np.subtract(actual_output, np.asmatrix(valid_out_data, float))
     corr_percent = 1 - sum(abs(x) for x in np.nditer(error_matrix)) / len(valid_out_data)
 
     print(corr_percent)
