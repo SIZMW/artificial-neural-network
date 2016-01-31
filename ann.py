@@ -56,6 +56,8 @@ def main():
     train_out_data = []
     valid_data = []
     valid_out_data = []
+    actual_output = []
+    errors = []
 
     # Set up training data arrays
     for i in range(0, train_len):
@@ -69,10 +71,15 @@ def main():
 
     net = NeuralNet(2, node_count, 1)
 
-    net.learn(1e-3, np.asmatrix(train_data, float), np.asmatrix(train_out_data, float))
-    actual_output = net.calculate(valid_data)[1][-1]
-    error_matrix = np.subtract(actual_output, np.asmatrix(valid_out_data, float))
-    corr_percent = 1 - sum(abs(x) for x in np.nditer(error_matrix)) / len(valid_out_data)
+    net.learn(1e-3, train_data, train_out_data)
+
+    for example in valid_data:
+        actual_output.append(net.calculate(example)[1])
+
+    for i in range(len(actual_output)):
+        errors.append(expec_output[i] - actual_output[i])
+
+    corr_percent = 1 - sum(abs(x) for x in errors) / len(valid_out_data)
 
     print(corr_percent)
 
