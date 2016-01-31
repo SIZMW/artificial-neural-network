@@ -23,12 +23,12 @@ class NeuralNet:
             outputs.append(self.activation_function(inputs[-1]))
         return inputs, outputs
 
-    def get_weight_gradients(self, input):
+    def get_weight_gradients(self, input, output):
         inputs, outputs = self.calculate(input)
 
         gradients = [np.zeros(len(inputs))] * len(self.weights)
 
-        delta = np.multiply(-(input - outputs[-1]), self.activation_derivative(inputs[-1]))
+        delta = np.multiply(-(output - outputs[-1]), self.activation_derivative(inputs[-1]))
 
         for i in reversed(len(gradients)):
             gradients[i] = np.dot(outputs[i - 1], delta)
@@ -36,9 +36,9 @@ class NeuralNet:
 
         return gradients
 
-    def learn(self, min_rate, input):
+    def learn(self, min_rate, input, output):
         while True:
-            gradients = self.get_weight_gradients(input)
+            gradients = self.get_weight_gradients(input, output)
             rate = np.linalg.norm(gradients[-1]) / 2.0
             if rate < min_rate:
                 break
