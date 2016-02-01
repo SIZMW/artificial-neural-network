@@ -52,10 +52,10 @@ def main():
 
     graph_data = []
     valid_size = int(len(points) * hold_back)
-    for epoch in range(1000):
+    for epoch in range(100):
         num_correct = 0
         validation_samples = 0
-        for k in range(0,1):
+        for k in range(int(len(points) / valid_size)):
             valid_data = points[k * valid_size:(k + 1) * valid_size]
             valid_out_data = expec_output[k * valid_size:(k + 1) * valid_size]
 
