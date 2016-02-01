@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
 
-import numpy as np
+import matplotlib.pyplot as plt
 
 from NeuralNet import NeuralNet
 
@@ -41,7 +41,6 @@ def main():
 
     hold_back = 0.2
     node_count = 5
-    train_len = 0
 
     if args.nodesorholdback == 'p':
         hold_back = args.value
@@ -49,39 +48,30 @@ def main():
             # Invalid percentage
             raise NameError('Hold back percentage is invalid.')
 
-    train_len = int(len(points) * (1.0 - hold_back))
-
-    # Data arrays
-    train_data = []
-    train_out_data = []
-    valid_data = []
-    valid_out_data = []
-    actual_output = []
-    errors = []
-
-    # Set up training data arrays
-    for i in range(0, train_len):
-        train_data.append(points[i])
-        train_out_data.append(expec_output[i])
-
-    # Set up validation data arrays
-    for i in range(train_len, len(points)):
-        valid_data.append(points[i])
-        valid_out_data.append(expec_output[i])
-
     net = NeuralNet(2, node_count, 1)
 
-    net.learn(1e-3, train_data, train_out_data)
+    graph_data = []
+    valid_size = int(len(points) * hold_back)
+    for epoch in range(1000):
+        num_correct = 0
+        validation_samples = 0
+        for k in range(0,1):
+            valid_data = points[k * valid_size:(k + 1) * valid_size]
+            valid_out_data = expec_output[k * valid_size:(k + 1) * valid_size]
 
-    for example in valid_data:
-        actual_output.append(net.calculate(example)[1][-1])
+            train_data = points[:k * valid_size] + points[(k + 1) * valid_size:]
+            train_out_data = expec_output[:k * valid_size] + points[(k + 1) * valid_size:]
 
-    for i in range(len(actual_output)):
-        errors.append(expec_output[i][0] - actual_output[i][0])
+            net.learn(train_data, train_out_data)
 
-    corr_percent = 1 - sum(abs(x) for x in errors) / len(valid_out_data)
+            for i in range(len(valid_data)):
+                validation_samples += 1
+                if valid_out_data[i][0] == round(net.classify(valid_data[i])[0]):
+                    num_correct += 1
+        graph_data.append(num_correct / validation_samples)
 
-    print(corr_percent)
+    plt.plot(graph_data)
+    plt.show()
 
 
 if __name__ == '__main__':
