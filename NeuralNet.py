@@ -1,3 +1,9 @@
+"""
+NeuralNet.py
+:author: Daniel Beckwith
+:author: Aditya Nivarthi
+"""
+
 from math import exp
 
 import numpy as np
