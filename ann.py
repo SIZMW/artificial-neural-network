@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+import sys
 
 import matplotlib.pyplot as plt
 
@@ -27,29 +27,28 @@ def read_data(file_name):
 
 
 def main():
-    parser = ArgumentParser(description='''
-    An Artificial Neural Network
-    by Daniel Beckwith and Aditya Nivarthi
-    for WPI CS 4341
-    ''')
-
-    parser.add_argument('filename')
-    parser.add_argument('h', default='h')
-    parser.add_argument('hidden_node_count', type=int)
-    parser.add_argument('p', default='p')
-    parser.add_argument('percent', type=float)
-    args = parser.parse_args()
-
-    points, expec_output = read_data(args.filename)
+    filename = sys.argv[1]
 
     hold_back = 0.2
     node_count = 5
-    hold_back = args.percent
-    node_count = args.hidden_node_count
 
-    if hold_back < 0.0 or hold_back > 1.0:
-        # Invalid percentage
-        raise NameError('Hold back percentage is invalid.')
+    try:
+        if len(sys.argv) > 2:
+            if sys.argv[2] == 'h':
+                node_count = int(sys.argv[3])
+                if len(sys.argv) > 4 and sys.argv[4] == 'p':
+                    hold_back = float(sys.argv[5])
+            elif sys.argv[2] == 'p':
+                hold_back = float(sys.argv[3])
+        if node_count <= 0 or hold_back <= 0 or hold_back >= 1:
+            raise ValueError
+    except (IndexError, TypeError, ValueError):
+        print('Usage: ann.py <filename> [h <number of hidden nodes>] [p <holdout proportion>]')
+        exit()
+
+    print('Using %d hidden nodes and %1.0f%% data holdout' % (node_count, hold_back * 100))
+
+    points, expec_output = read_data(filename)
 
     net = NeuralNet(2, node_count, 1)
 

@@ -11,7 +11,6 @@ class NeuralNet:
             self.weights.append(
                 [[np.random.randn() for input_node in range(self.layer_sizes[i + 1])] for output_node in
                  range(self.layer_sizes[i] + 1)])
-        print(self.weights)
         self.activation_function = lambda x: 1 / (1 + exp(-x))
         self.activation_derivative = lambda x: exp(x) * (1 + exp(x)) ** -2
 
