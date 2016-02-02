@@ -53,10 +53,19 @@ def main():
     net = NeuralNet(2, node_count, 1)
 
     valid_size = int(len(points) * hold_back)
-    graph_data = []
-    for epoch in range(1000):
-        num_correct = 0
-        validation_samples = 0
+    test_errors = []
+    validation_errors = []
+    best_epoch = 1
+    best_error = 1
+    epoch = 0
+    best_net = net
+    while True:
+        epoch += 1
+        print("Epoch %d, %d epochs since best" % (epoch, epoch - best_epoch))
+        test_error = 0
+        test_tests = 0
+        validation_error = 0
+        validation_tests = 0
         for k in range(int(len(points) / valid_size)):
             valid_data = points[k * valid_size:(k + 1) * valid_size]
             valid_out_data = expec_output[k * valid_size:(k + 1) * valid_size]
@@ -66,14 +75,31 @@ def main():
 
             net.learn(0.1, train_data, train_out_data)
 
+            for i in range(len(train_data)):
+                test_tests += 1
+                if train_out_data[i][0] != round(net.classify(train_data[i])[0]):
+                    test_error += 1
             for i in range(len(valid_data)):
-                validation_samples += 1
-                out = net.classify(valid_data[i])[0]
-                if valid_out_data[i][0] == round(out):
-                    num_correct += 1
-        graph_data.append(num_correct / validation_samples)
+                validation_tests += 1
+                if valid_out_data[i][0] != round(net.classify(valid_data[i])[0]):
+                    validation_error += 1
+        test_errors.append(test_error / test_tests)
+        validation_errors.append(validation_error / validation_tests)
+        if validation_errors[-1] < best_error:
+            best_epoch = epoch
+            best_error = validation_errors[-1]
+            best_net = net.copy()
+            print("Best error: %1.2f%%" % (best_error * 100))
+        elif epoch - best_epoch >= 200:
+            print("Error did not improve in 200 epochs, stopping training")
+            break
 
-    plt.plot(graph_data)
+    print("Best error: %1.2f%% at epoch %d" % (best_error * 100, best_epoch))
+    print("Best network: %s" % best_net.weights)
+
+    test_plot, = plt.plot(test_errors, label="Test Error")
+    validation_plot, = plt.plot(validation_errors, label="Validation Error")
+    plt.legend(handles=[test_plot, validation_plot])
     plt.show()
 
 

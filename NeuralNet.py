@@ -60,3 +60,8 @@ class NeuralNet:
                     for input_node in range(self.layer_sizes[w + 1]):
                         self.weights[w][output_node][input_node] += \
                             rate * outputs[w][output_node] * errors[w + 1][input_node]
+
+    def copy(self):
+        net = NeuralNet(*self.layer_sizes)
+        net.weights = self.weights
+        return net
