@@ -50,9 +50,9 @@ def main():
 
     net = NeuralNet(2, node_count, 1)
 
-    graph_data = []
     valid_size = int(len(points) * hold_back)
-    for epoch in range(100):
+    graph_data = []
+    for epoch in range(1000):
         num_correct = 0
         validation_samples = 0
         for k in range(int(len(points) / valid_size)):
@@ -60,13 +60,14 @@ def main():
             valid_out_data = expec_output[k * valid_size:(k + 1) * valid_size]
 
             train_data = points[:k * valid_size] + points[(k + 1) * valid_size:]
-            train_out_data = expec_output[:k * valid_size] + points[(k + 1) * valid_size:]
+            train_out_data = expec_output[:k * valid_size] + expec_output[(k + 1) * valid_size:]
 
-            net.learn(train_data, train_out_data)
+            net.learn(0.1, train_data, train_out_data)
 
             for i in range(len(valid_data)):
                 validation_samples += 1
-                if valid_out_data[i][0] == round(net.classify(valid_data[i])[0]):
+                out = net.classify(valid_data[i])[0]
+                if valid_out_data[i][0] == round(out):
                     num_correct += 1
         graph_data.append(num_correct / validation_samples)
 
