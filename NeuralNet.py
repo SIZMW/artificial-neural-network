@@ -84,6 +84,6 @@ class NeuralNet:
                             rate * outputs[w][output_node] * errors[w + 1][input_node]
 
     def copy(self):
-        net = NeuralNet(*self.layer_sizes)
-        net.weights = self.weights
+        net = NeuralNet(*self.layer_sizes[:])
+        net.weights = self.weights[:]
         return net
